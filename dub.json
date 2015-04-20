@@ -1,0 +1,10 @@
+{
+	"name": "quote-pull",
+	"description": "A simple vibe.d server application.",
+	"copyright": "Copyright © 2015, mattias",
+	"authors": ["mattias"],
+	"dependencies": {
+		"vibe-d": "~>0.7.19"
+	},
+	"versions": ["VibeDefaultMain"]
+}
