@@ -43,7 +43,7 @@ alias fastGetQuotesFor = memoize!getQuotesFor;
  * Read .rcpeople and return them.
  */
 string[] getPeople() {
-	return environment["PEOPLE"].split(',').replace("/","");
+	return environment["PEOPLE"].split(',').replace("\\","");
 }
 
 void quote(HTTPServerRequest req, HTTPServerResponse res) {
