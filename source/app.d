@@ -13,6 +13,11 @@ import std.array : split;
 enum PRE_REGEX = ctRegex!("<pre>(.*)(?!</pre>)", "gmi");
 string[] people;
 
+struct quote_response {
+	string quote;
+	string author;
+}
+
 
 /**
  * Fetch a single random quote from the specified url
@@ -41,33 +46,39 @@ string[] getPeople() {
 	return environment["PEOPLE"].split(',');
 }
 
-
-void hello(HTTPServerRequest req, HTTPServerResponse res) {
+void quote(HTTPServerRequest req, HTTPServerResponse res) {
 	if(people.length == 0) {
 		people = getPeople();
 	}
 
-	auto author = people[uniform(0, people.length)];
-	auto quotes = fastGetQuotesFor("http://wiki.ceri.se/index.php?title=" ~ author);
+	quote_response response;
 
-	auto quote = quotes.length > 0 ? quotes[uniform(0, quotes.length)] : "Nothing";
+	response.author = people[uniform(0, people.length)];
+	auto quotes = fastGetQuotesFor("http://wiki.ceri.se/index.php?title=" ~ response.author);
 
-	res.render!("index.dt", quote, author);
+	response.quote = quotes.length > 0 ? quotes[uniform(0, quotes.length)] : "Nothing";
+
+	res.writeJsonBody(response);
+}
+
+void hello(HTTPServerRequest req, HTTPServerResponse res) {
+	res.render!("index.dt");
 }
 
 shared static this()
 {
 	auto settings = new HTTPServerSettings;
-	settings.port = 3000;
-	settings.bindAddresses = ["::1", "127.0.0.1"];
+	settings.port = environment.get("PORT", "3000").to!ushort;;
+	//settings.bindAddresses = ["::1", "127.0.0.1"];
 
 	auto router = new URLRouter;
 	router.get("/", &hello)
+		  .get("/api/quote", &quote)
 	      .get("*", serveStaticFiles("./public/"));
 
 
 	listenHTTP(settings, router);
 
-	logInfo("Please open http://127.0.0.1:3000/ in your browser.");
+	logInfo("Please open http://127.0.0.1:????/ in your browser.");
 }
 

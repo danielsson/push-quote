@@ -3,7 +3,6 @@ doctype html
 html
 	head
 		title Qotr
-		meta(http-equiv="refresh", content="15")
 		:css
 			body, html {
 				height: 100%;
@@ -38,8 +37,36 @@ html
 				font-size: 22px;
 			}
 
+		:javascript
+			function fetch_quote() {
+				var request = new XMLHttpRequest();
+				request.open('GET', '/api/quote', true);
+
+				request.onload = function() {
+				  if (this.status >= 200 && this.status < 400) {
+				    // Success!
+				    var data = JSON.parse(this.response);
+				    
+				    document.getElementById('quoter').innerHTML = data.quote;
+				    document.getElementById('citation').innerHTML = data.author;
+				    
+				  } else {
+				    // We reached our target server, but it returned an error
+				    document.getElementById('quoter').innerHTML = this.status;
+				  }
+				};
+
+				request.onerror = function() {
+				  // There was a connection error of some sort
+				};
+
+				request.send();
+			}
+
+			setInterval(fetch_quote, 15000);
+			fetch_quote();
 
 	body
 		div#box
-			h1!= quote
-			cite= author
+			h1#quoter
+			cite#citation
