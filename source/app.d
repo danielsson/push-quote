@@ -8,7 +8,7 @@ import std.container.slist;
 import std.functional : memoize;
 import std.conv : to;
 import std.process : environment;
-import std.array : split;
+import std.array : split, replace;
 
 enum PRE_REGEX = ctRegex!("<pre>(.*)(?!</pre>)", "gmi");
 string[] people;
@@ -43,7 +43,7 @@ alias fastGetQuotesFor = memoize!getQuotesFor;
  * Read .rcpeople and return them.
  */
 string[] getPeople() {
-	return environment["PEOPLE"].split(',');
+	return environment["PEOPLE"].split(',').replace("/","");
 }
 
 void quote(HTTPServerRequest req, HTTPServerResponse res) {
@@ -68,7 +68,7 @@ void hello(HTTPServerRequest req, HTTPServerResponse res) {
 shared static this()
 {
 	auto settings = new HTTPServerSettings;
-	settings.port = environment.get("PORT", "3000").to!ushort;;
+	settings.port = environment.get("PORT", "3000").to!ushort;
 	//settings.bindAddresses = ["::1", "127.0.0.1"];
 
 	auto router = new URLRouter;
