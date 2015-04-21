@@ -3,6 +3,7 @@ doctype html
 html
 	head
 		title Qotr
+		meta(http-equiv="refresh", content="15")
 		:css
 			body, html {
 				height: 100%;
