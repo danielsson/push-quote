@@ -1,0 +1,41 @@
+extends layout
+
+block head
+	:css
+		body {background-image: url(bg2.jpeg);}
+
+	:javascript
+		function fetch_tidbit() {
+			var request = new XMLHttpRequest();
+			request.open('GET', '/api/tidbit', true);
+
+			request.onload = function() {
+			  if (this.status >= 200 && this.status < 400) {
+			    // Success!
+			    var data = JSON.parse(this.response);
+			    
+			    document.getElementById('quoter').innerHTML = data.quote;
+			    document.getElementById('name').innerHTML = data.author;
+			    
+			  } else {
+			    // We reached our target server, but it returned an error
+			    document.getElementById('quoter').innerHTML = this.status;
+			  }
+			};
+
+			request.onerror = function() {
+			  // There was a connection error of some sort
+			};
+
+			request.send();
+		}
+
+		setInterval(fetch_tidbit, 15000);
+		fetch_tidbit();
+
+block body
+	div#box
+		h1 Visste du att
+			cite#name
+			| :
+		h1#quoter

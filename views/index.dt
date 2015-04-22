@@ -1,72 +1,39 @@
-doctype html
+extends layout
 
-html
-	head
-		title Qotr
-		:css
-			body, html {
-				height: 100%;
-				width:100%;
-				overflow:hidden;
-			}
-			body {
-				background-image: url(bg.jpeg);
-				background-size:cover;
-				-webkit-transform-style: preserve-3d;
-				-moz-transform-style: preserve-3d;
-				transform-style: preserve-3d;
-			}
+block head
+	:css
+		body {background-image: url(bg.jpeg);}
 
-			#box {
-				position: relative;
-				top: 50%;
-				transform: translateY(-50%);
-				box-shadow: inset -20px -30px 10px rgba(255,255,255,.2), inset 20px 0px 1px rgba(255,255,255,.2);
-				margin: 0 auto;
-				width: 44%;
-				background-color: rgba(255,255,255,.8);
-				padding: 20px 40px 70px 40px;
-			}
-			h1, body {
-				font-family: Helvetica Neue, sans-serif;
-				font-weight: 100;
-			}
-			h1 {font-size: 55px}
-			cite {
-				float:right;
-				font-size: 40px;
-			}
+	:javascript
+		function fetch_quote() {
+			var request = new XMLHttpRequest();
+			request.open('GET', '/api/quote', true);
 
-		:javascript
-			function fetch_quote() {
-				var request = new XMLHttpRequest();
-				request.open('GET', '/api/quote', true);
+			request.onload = function() {
+			  if (this.status >= 200 && this.status < 400) {
+			    // Success!
+			    var data = JSON.parse(this.response);
+			    
+			    document.getElementById('quoter').innerHTML = data.quote;
+			    document.getElementById('citation').innerHTML = data.author;
+			    
+			  } else {
+			    // We reached our target server, but it returned an error
+			    document.getElementById('quoter').innerHTML = this.status;
+			  }
+			};
 
-				request.onload = function() {
-				  if (this.status >= 200 && this.status < 400) {
-				    // Success!
-				    var data = JSON.parse(this.response);
-				    
-				    document.getElementById('quoter').innerHTML = data.quote;
-				    document.getElementById('citation').innerHTML = data.author;
-				    
-				  } else {
-				    // We reached our target server, but it returned an error
-				    document.getElementById('quoter').innerHTML = this.status;
-				  }
-				};
+			request.onerror = function() {
+			  // There was a connection error of some sort
+			};
 
-				request.onerror = function() {
-				  // There was a connection error of some sort
-				};
+			request.send();
+		}
 
-				request.send();
-			}
+		setInterval(fetch_quote, 15000);
+		fetch_quote();
 
-			setInterval(fetch_quote, 15000);
-			fetch_quote();
-
-	body
-		div#box
-			h1#quoter
-			cite#citation
+block body
+	div#box
+		h1#quoter
+		cite#citation

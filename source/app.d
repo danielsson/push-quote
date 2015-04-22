@@ -11,6 +11,7 @@ import std.process : environment;
 import std.array : split, replace;
 
 enum PRE_REGEX = ctRegex!("<pre>(.+?)</pre>", "s");
+enum LI_REGEX = ctRegex!("<li>(.+?)</li>", "s");
 string[] people;
 
 struct quote_response {
@@ -18,11 +19,7 @@ struct quote_response {
 	string author;
 }
 
-
-/**
- * Fetch a single random quote from the specified url
- */
-string[] getQuotesFor(const string url) {
+string[] getMatching(R, RegEx)(const R url, RegEx r) {
 	auto response = requestHTTP(url);
 
 	auto b = response.bodyReader.readAllUTF8();
@@ -30,14 +27,23 @@ string[] getQuotesFor(const string url) {
 	string[] quotes;
 
 
-	foreach(c; matchAll(b, PRE_REGEX)) {
+	foreach(c; matchAll(b, r)) {
 		quotes ~= c[1].replace("\n", "<br>");
 	}
 
 	return quotes;
 }
 
+string[] getQuotesFor(const string url) {
+	return getMatching(url, PRE_REGEX);
+}
+
+string[] getTidbitsFor(const string url) {
+	return getMatching(url, LI_REGEX);
+}
+
 alias fastGetQuotesFor = memoize!getQuotesFor;
+alias fastGetTidbitsFor = memoize!getTidbitsFor;
 
 /**
  * Read .rcpeople and return them.
@@ -46,7 +52,7 @@ string[] getPeople() {
 	return environment["PEOPLE"].replace("\\","").split(",");
 }
 
-void quote(HTTPServerRequest req, HTTPServerResponse res) {
+quote_response _pick_one(string[] function(const(immutable(char)[])) fetch_function) {
 	if(people.length == 0) {
 		people = getPeople();
 	}
@@ -54,15 +60,27 @@ void quote(HTTPServerRequest req, HTTPServerResponse res) {
 	quote_response response;
 
 	response.author = people[uniform(0, people.length)];
-	auto quotes = fastGetQuotesFor("http://wiki.ceri.se/index.php?title=" ~ response.author);
+	auto quotes = fetch_function("http://wiki.ceri.se/index.php?title=" ~ response.author);
 
 	response.quote = quotes.length > 0 ? quotes[uniform(0, quotes.length)] : "Nothing";
 
-	res.writeJsonBody(response);
+	return response;
+}
+
+void quote_api(HTTPServerRequest req, HTTPServerResponse res) {
+	res.writeJsonBody(_pick_one(&fastGetQuotesFor));
+}
+
+void tidbit_api(HTTPServerRequest req, HTTPServerResponse res) {
+	res.writeJsonBody(_pick_one(&fastGetTidbitsFor));
 }
 
 void hello(HTTPServerRequest req, HTTPServerResponse res) {
 	res.render!("index.dt");
+}
+
+void tidbit(HTTPServerRequest req, HTTPServerResponse res) {
+	res.render!("tidbits.dt");
 }
 
 shared static this()
@@ -73,12 +91,11 @@ shared static this()
 
 	auto router = new URLRouter;
 	router.get("/", &hello)
-		  .get("/api/quote", &quote)
+		  .get("/tidbit", &tidbit)
+		  .get("/api/quote", &quote_api)
+		  .get("/api/tidbit", &tidbit_api)
 	      .get("*", serveStaticFiles("./public/"));
 
-
 	listenHTTP(settings, router);
-
-	logInfo("Please open http://127.0.0.1:????/ in your browser.");
 }
 
