@@ -10,7 +10,7 @@ import std.conv : to;
 import std.process : environment;
 import std.array : split, replace;
 
-enum PRE_REGEX = ctRegex!("<pre>(.*)(?!</pre>)", "gmi");
+enum PRE_REGEX = ctRegex!("<pre>(.+?)</pre>", "s");
 string[] people;
 
 struct quote_response {
@@ -31,7 +31,7 @@ string[] getQuotesFor(const string url) {
 
 
 	foreach(c; matchAll(b, PRE_REGEX)) {
-		quotes ~= c[1];
+		quotes ~= c[1].replace("\n", "<br>");
 	}
 
 	return quotes;
