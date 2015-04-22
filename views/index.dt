@@ -25,7 +25,7 @@ html
 				margin: 0 auto;
 				width: 44%;
 				background-color: rgba(255,255,255,.8);
-				padding: 20px 40px 60px 40px;
+				padding: 20px 40px 70px 40px;
 			}
 			h1, body {
 				font-family: Helvetica Neue, sans-serif;
@@ -34,7 +34,7 @@ html
 			h1 {font-size: 55px}
 			cite {
 				float:right;
-				font-size: 22px;
+				font-size: 40px;
 			}
 
 		:javascript
