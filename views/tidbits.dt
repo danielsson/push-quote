@@ -37,5 +37,5 @@ block body
 	div#box
 		h1 Visste du att
 			cite#name
-			| :
+			|:
 		h1#quoter

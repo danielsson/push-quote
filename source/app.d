@@ -76,17 +76,21 @@ void tidbit_api(HTTPServerRequest req, HTTPServerResponse res) {
 }
 
 void hello(HTTPServerRequest req, HTTPServerResponse res) {
+	res.headers.addField("Cache-Control", "no-transform,public,max-age=300,s-maxage=900");
 	res.render!("index.dt");
 }
 
 void tidbit(HTTPServerRequest req, HTTPServerResponse res) {
+	res.headers.addField("Cache-Control", "no-transform,public,max-age=300,s-maxage=900");
 	res.render!("tidbits.dt");
 }
+
 
 shared static this()
 {
 	auto settings = new HTTPServerSettings;
 	settings.port = environment.get("PORT", "3000").to!ushort;
+	settings.useCompressionIfPossible = true;
 	//settings.bindAddresses = ["::1", "127.0.0.1"];
 
 	auto router = new URLRouter;

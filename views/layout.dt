@@ -22,7 +22,11 @@ html
 				position: relative;
 				top: 50%;
 				transform: translateY(-50%);
-				box-shadow: inset -20px -30px 10px rgba(255,255,255,.2), inset 20px 0px 1px rgba(255,255,255,.2);
+				box-shadow: 
+					inset -20px -30px 0px rgba(255,255,255,.2),
+					inset -10px -40px 0px rgba(255,255,255,.3),
+					inset -45px -10px 0px rgba(255,255,255,.2),
+					10px 10px 0 rgba(256,256,256,.2);
 				margin: 0 auto;
 				width: 44%;
 				background-color: rgba(255,255,255,.8);
